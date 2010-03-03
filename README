@@ -1,0 +1,29 @@
+OAuthCI
+
+About
+=====
+
+This project provides a CodeIgniter library for OAuth authentication and data
+exchange, designed for use by server and client roles.  It is based on the
+OAuth reference implementation by Andy Smith available from the Google Code
+project "oauth" [1].
+
+
+Limitations
+===========
+
+Currently, the library only supports PLAINTEXT and HMAC-SHA1 signature methods,
+with eventual plans for supporting RSA-SHA1 at some point in the future.
+
+
+Bug Reports
+===========
+
+If you find any problems with this project, please do not hesitate to visit my
+bugtracker at http://leetcode.net/mantis/ and submit a report.
+
+
+Footnotes
+=========
+
+[1] http://oauth.googlecode.com/svn/code/php/
