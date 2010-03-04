@@ -26,12 +26,18 @@ class Oauth {
 	 *     if using a server, optionally specify the name of
 	 *     a class extending OAuthDataStore
 	 *
+	 *   urandom =>
+	 *     if using a Unix-ish server with /dev/urandom, use
+	 *     /dev/urandom instead of OpenSSL for random bytes
+	 *
 	 * @param array Parameters (optional)
 	 */
 	public function __construct($params=array())
 	{
 		$this->ci =& get_instance();
 		$this->ci->load->helper("array");
+
+		$this->params = $params;
 
 		$this->hmac_sha1 = new OAuthSignatureMethod_HMAC_SHA1();
 		$this->plaintext = new OAuthSignatureMethod_PLAINTEXT();
@@ -99,6 +105,60 @@ class Oauth {
 			show_error($e->getMessage(), 401);
 			return false;
 		}
+	}
+
+	/**
+	 * Generate a key/secret pair for a client or token object.
+	 * @return array Key/secret list
+	 */
+	public function generate_key_secret_pair()
+	{
+		$key = $this->generate_random_string(12);
+		$secret = $this->generate_random_string(72);
+
+		return array($key, $secret);
+	}
+
+	/**
+	 * Generate a strongly random string with a given number
+	 * of bytes, using a secure PRNG source.
+	 * @param int Number of base64-encoded bytes
+	 * @return string Random string
+	 */
+	private function generate_random_bytes($bytes)
+	{
+		$bytes = (int) $bytes;
+		if ($bytes < 1)
+			$bytes = 1;
+
+		if (element("urandom", $this->params) == TRUE)
+		{
+			$urandom = fopen("/dev/urandom", "rb");
+			$data = fread($urandom, $bytes);
+			fclose($urandom);
+
+			return $data;
+		}
+		elseif (function_exists("openssl_random_pseudo_bytes"))
+		{
+			return openssl_random_pseudo_bytes($bytes);
+		}
+		else
+		{
+			return shell_exec("openssl rand $bytes");
+		}
+	}
+
+	/**
+	 * Generate a strongly random, URI-safe, base64-encoded
+	 * string with a given number of encoded bytes.
+	 * @param int Number of base64-encoded bytes
+	 * @return string Random string
+	 */
+	private function generate_random_string($bytes)
+	{
+		$data = $this->generate_random_bytes($bytes);
+		return strtr(base64_encode($data), "+/", "-_");
 	}
 
 	/**
