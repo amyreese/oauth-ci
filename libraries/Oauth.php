@@ -13,18 +13,23 @@ require_once("OAuthCI/OAuth.php");
 class Oauth {
 	private $ci = null;
 
+	public static $params = array();
+
 	/**
 	 * Initialize's the OAuth wrapper library.
 	 * Called by CI's load->library() module.
 	 *
 	 * Accepted parameters:
 	 *
-	 *   server =>
-	 *     boolean, true for use as a server
+	 *   createtables =>
+	 *     automatically create tables for database models
 	 *
 	 *   datastore =>
 	 *     if using a server, optionally specify the name of
 	 *     a class extending OAuthDataStore
+	 *
+	 *   server =>
+	 *     boolean, true for use as a server
 	 *
 	 *   urandom =>
 	 *     if using a Unix-ish server with /dev/urandom, use
@@ -41,6 +46,8 @@ class Oauth {
 
 		$this->hmac_sha1 = new OAuthSignatureMethod_HMAC_SHA1();
 		$this->plaintext = new OAuthSignatureMethod_PLAINTEXT();
+
+		$this->ci->load->model("user");
 
 		# Optionally set up a server object
 		if (element("server", $params) == TRUE)
@@ -174,6 +181,16 @@ class Oauth {
 			&& is_subclass_of($datastore, "OAuthDataStore"))
 		{
 			$datastore = new $datastore();
+		}
+		elseif ($datastore === "OAuthCIDataStore")
+		{
+			require_once("OAuthCI/OAuthCIDataStore.php");
+			$datastore = new OAuthCIDataStore();
+
+			# Load models used by the data store
+			$this->ci->load->model("oauth_clients");
+			$this->ci->load->model("oauth_server_tokens");
+			$this->ci->load->model("oauth_nonces");
 		}
 		else
 		{

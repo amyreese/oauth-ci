@@ -1,0 +1,57 @@
+Overview
+========
+
+The default data model for OAuthCI makes a few assumptions about what
+information is linked directly to the OAuth layer, and tries to stay
+as simple as possible without losing important data.
+
+For clarity, the model uses "server" in place of provider, and
+"client" in place of consumer.
+
+
+Assumptions
+===========
+
+Client applications are registered independently of this framework,
+but are tied to existing user accounts.
+
+OAuth tokens are used in both server and client contexts, such that
+an application can act in either role, requiring two token tables.
+
+
+Server Model
+============
+
+Clients - Client applications that have registered and received a
+consumer key and secret pair
+
+  id
+  key
+  secret
+  name              Display name of client application
+  uri               URI of client application's homepage
+  callback_uri      URI of client's OAuth authorization page
+  user_id           User that registered the application
+
+Server Tokens - Tokens generated for use by client applications
+
+  id
+  key
+  secret
+  verifier
+  type
+  authorized
+  timestamp
+  ttl
+  callback_uri      URI of client's OAuth authorization page
+  client_key
+  user_id           User whose data is being requested
+
+Nonces - Nonces generated for tokens
+
+  client_key
+  token_key
+  timestamp
+  nonce
+
+
