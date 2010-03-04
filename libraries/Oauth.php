@@ -122,7 +122,7 @@ class Oauth {
 		}
 
 		# Initialize the server and signature methods
-		$this->server = new OAuthServerCI($datastore);
+		$this->server = new OAuthServer($datastore);
 		$this->server->add_signature_method($this->hmac_sha1);
 		$this->server->add_signature_method($this->plaintext);
 	}
